@@ -1,5 +1,16 @@
 import kafka as kf
+from kafka.admin import KafkaAdminClient, NewTopic
 import pyspark
+from json import dump
+import yfinance as yf
+import asyncio
+
+
+# // membuat admin untuk membuat topic kafka
+sosok_admin = KafkaAdminClient(bootstrap_servers=['localhost:9092'], client_id='client_1')
+gosip = NewTopic(name="utama", num_partitions=1, replication_factor=1)
+sosok_admin.create_topics(new_topics=[gosip], validate_only=False)
+
 
 consumer = kf.KafkaConsumer('main',
                          bootstrap_servers=['localhost:9092'],
@@ -10,7 +21,7 @@ consumer = kf.KafkaConsumer('main',
                         )
 consumer.subscribe(topics=['main'])
 
-# Poll for new messages
+# // menunggu masukan baru
 while True:
     msg = consumer.poll(timeout_ms=1000)
     if msg:
