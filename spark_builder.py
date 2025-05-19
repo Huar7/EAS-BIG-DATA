@@ -4,11 +4,8 @@ from pyspark.sql import SparkSession
 import kafka as kf
 import ast
 
-import json
 import main
 from multiprocessing import Process
-
-
 
 def Rdata(): 
     
@@ -29,7 +26,7 @@ def Rdata():
                 try:
                     print("\n", 50*"=", "\n", ast.literal_eval(value[0].value))
                     try:
-                        # // FixMe: ini kenapa tetap str terus ya su
+                        # // FixMe: ini kenapa tetap str terus ya: ubah semua Timestamp menjadi dalam bentuk str
                         nilai_panggilan = ast.literal_eval(value[0].value)
 
                         print(type(nilai_panggilan))

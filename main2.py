@@ -8,7 +8,10 @@ def yf_first(isi: list):
     hasil = {}
     for i in starter['Close']:
         julia = starter['Close'][i].dropna()
-        hasil[i] = julia.to_dict()
+        nilui = {}
+        for kukukaka in range(len(julia)):
+            nilui[julia.index[kukukaka].strftime("%Y/%m/%d")] = julia[kukukaka].item()
+            hasil[i] = nilui
     return(hasil)
 
 def data_ingest_run(isi: list):
@@ -17,7 +20,6 @@ def data_ingest_run(isi: list):
     try:
         historis = info.history(period='1d', interval='1m', progress=False, repair=True)
         reynauld = historis.index[-1].strftime("%Y/%m/%d")
-        reynauld = pd.Timestamp(reynauld)
         time_point = ""
         if reynauld != time_point:
             for i in historis['Close']:
