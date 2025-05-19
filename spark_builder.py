@@ -36,10 +36,10 @@ def Rdata():
                     print("Kode I, Lompati atau Tidak Bisa")
         else:
             print("No new messages \n")
-        if once <= 55:
-            once += 1
-        else:
-            break
+        # if once <= 55:
+        #     once += 1
+        # else:
+        #     break
 
 if __name__ == "__main__":
     Rdata()

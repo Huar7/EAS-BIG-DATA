@@ -56,7 +56,7 @@ def Wdata():
             print(" \n kirim 2")
             produser.send(topic='stock_kotor', value= str(continous_val))
             print(" \n sukses 2")
-            break
+            # break
         produser.flush()
         time.sleep(10)
             
