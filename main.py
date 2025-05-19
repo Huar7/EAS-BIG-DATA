@@ -46,15 +46,15 @@ def Wdata():
 
         print(f"start value: {type(start_val)}, continous value: {type(continous_val)}")
 
-        produser = kf.KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=lambda x: json.dumps(x).encode('utf-8'))
+        produser = kf.KafkaProducer(bootstrap_servers='localhost:9092')
         if once == 0:
             print(" \n kirim 1")
-            produser.send(topic='stock_kotor', value= str(start_val))
+            produser.send(topic='stock_kotor', value= json.dumps(start_val, default=str).encode('utf-8'))
             once += 1
             print(" \n sukses 1")
         else:
             print(" \n kirim 2")
-            produser.send(topic='stock_kotor', value= str(continous_val))
+            produser.send(topic='stock_kotor', value= json.dumps(continous_val, default=str).encode('utf-8'))
             print(" \n sukses 2")
             # break
         produser.flush()

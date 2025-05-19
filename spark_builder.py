@@ -4,17 +4,18 @@ from pyspark.sql import SparkSession
 import kafka as kf
 import ast
 
-import main
-from multiprocessing import Process
+import json
+
+# from multiprocessing import Process
 
 def Rdata(): 
-    
+    spark = SparkSession.builder.appName('main_app').getOrCreate()
     consumer = kf.KafkaConsumer('stock_kotor',
                          bootstrap_servers=['localhost:9092'],
                          auto_offset_reset='earliest',
                          enable_auto_commit=False,
                          group_id='my_group_id',
-                         value_deserializer=lambda x: x.decode('utf8')
+                         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
                         )
     consumer.subscribe(topics=['stock_kotor'])
     once = 0
@@ -22,24 +23,28 @@ def Rdata():
         msg = consumer.poll(timeout_ms=1000)
         if msg:
             for key, value in msg.items():
-                print("ada nilai kafka masuk berupa: Kunci: {} | Nilainya_brot: {}".format(key, value[0]))
+                print("ada nilai kafka masuk berupa")
                 try:
-                    print("\n", 50*"=", "\n", ast.literal_eval(value[0].value))
+                    print("\n", 50*"=", "\n", value[0].value)
                     try:
                         # // FixMe: ini kenapa tetap str terus ya: ubah semua Timestamp menjadi dalam bentuk str
-                        nilai_panggilan = ast.literal_eval(value[0].value)
+                        nilai_panggilan = value[0].value
+                        output = {}
+                        for i in [*nilai_panggilan]:
+                            output[i] = spark.createDataFrame(nilai_panggilan[i])
 
-                        print(type(nilai_panggilan))
                     except:
                         print("Kode II, Tidak Bisa")
                 except:
                     print("Kode I, Lompati atau Tidak Bisa")
         else:
             print("No new messages \n")
-        # if once <= 55:
-        #     once += 1
-        # else:
-        #     break
+        if once <= 55:
+            once += 1
+        else:
+            break
+    for i in [*output]:
+        output[i].show()
 
 if __name__ == "__main__":
     Rdata()

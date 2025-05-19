@@ -8,10 +8,10 @@ def yf_first(isi: list):
     hasil = {}
     for i in starter['Close']:
         julia = starter['Close'][i].dropna()
-        nilui = {}
+        nalia = []
         for kukukaka in range(len(julia)):
-            nilui[julia.index[kukukaka].strftime("%Y/%m/%d")] = julia[kukukaka].item()
-            hasil[i] = nilui
+            nalia.append({"Timestamp": julia.index[kukukaka].strftime("%Y/%m/%d"), "Close": julia[kukukaka].item()})
+        hasil[i] = nalia 
     return(hasil)
 
 def data_ingest_run(isi: list):
@@ -27,7 +27,7 @@ def data_ingest_run(isi: list):
                     print("Melompati Karena Kosong", i)
                 else:
                     dismas = historis['Close'][i].iloc[-1]
-                    hasil[i] = {reynauld: dismas.item()}
+                    hasil[i] = [{"Timestamp": reynauld, "Close": dismas}]
             time_point = reynauld
         else:
             print("Melompati, Dikarenakan tidak ada update")
