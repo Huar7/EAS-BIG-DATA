@@ -38,7 +38,7 @@ def belajar():
 
 def Wdata():
     once = 0
-    indes = ["BTC-USD", "XRP-USD", "NVAX"]
+    indes = ["BTC-USD", "XRP-USD", "NVAX", "MSFT", "AAPL"]
     start_val = main2.yf_first(indes)
     while True:
 
