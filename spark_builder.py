@@ -1,10 +1,10 @@
-from kafka.protocol.types import Schema
 import pyspark
 from pyspark.sql import SparkSession
 
 import kafka as kf
 
 import json
+import math
 
 from yfinance import data
 
@@ -23,11 +23,12 @@ def Rdata():
     )
     consumer.subscribe(topics=["stock_kotor"])
     once = 0
-    column = pyspark.sql.types.StructType([])
 
     """
     Pyspark hanya menerima dalam bentuk Dictionaries, sehingga kita harus membuat fungsi yang mengubah setiap nilai yang ada di dalam fungsi tersebut menjadi suatu dict
     """
+
+    nil_min_one = {}  # // nil_min_one atau nil[-1] adalah nilai yang akan menyimpan nilai
 
     while True:
         msg = consumer.poll(timeout_ms=1000)
@@ -48,16 +49,23 @@ def Rdata():
                         maxum = dataframe_normalization(
                             nilai_data, len(nilai_data[maxi])
                         )
+                        nil_min_one = maxum[-1]
                         optimus_prime = god_merge(chronos, maxum)
 
-                        df = spark.createDataFrame(data=optimus_prime)
+                        df = spark.createDataFrame(
+                            optimus_prime
+                        )  # // NOTES tidak menemukan cara untuk membuat dataframe menjadi dalam bentuk / tidak perlu di sort column nya
                         df.show()
-                    # -- NOTES;
+                        once += 1
+                        break
+                    maxum = datastream_normalization(nilai_data, chronos, nil_min_one)
+                    stream_frame = spark.createDataFrame(maxum)
+                    stream_frame.show()
+                    print("ok 1")
+                    df = df.union(stream_frame)
+                    print(df.tail(1))
 
-                    once += 1
-                    # hasil_output = {}
-                    # for i in [*nilai_panggilan]:
-                    #     hasil_output[i] = nilai_panggilan[i]
+                    # -- NOTES;
 
                 except:
                     print("Kode I, Lompati atau Tidak Bisa")
@@ -71,7 +79,6 @@ def find_largest(nil: dict) -> str:
     panjang = []
     naila = [*nil]
     for i in naila:
-        print(f"panjang dari {i} adalah: {len(nil[i])}")
         panjang.append(len(nil[i]))
     maxi = max(panjang)
     posisi = panjang.index(maxi)
@@ -97,12 +104,23 @@ def dataframe_normalization(data: dict, amount: int):
     return to_dict
 
 
+def datastream_normalization(data: dict, data2: dict, andval: dict):
+    """Fungsi yang digunakan untuk mengonversikan data input menjadi data yang siap digunakan untuk dibuat dataframe dan untuk mengisi nilai nan dengan nilai terdahulu"""
+    junia = [*data]  # // mendapatkan list keys dari dict data
+    for i in junia:
+        if math.isnan(data[i]):  # // pengecekan apakah nilai tidak nan
+            data[i] = andval[i]  # // konversi nilai kosong menjadi nilai terakhir
+    data3 = []
+    data3.append(data2 | data)
+    print("data33", data3)
+    return data3
+
+
 def god_merge(data1, data2):
     """Fungsi yang digunakan untuk menggabungkan 2 list dengan isi Dictionaries dengan update()"""
     data3 = []
     for i in range(len(data1)):
         data3.append(data1[i] | data2[i])
-    print(data3)
     return data3
 
 
