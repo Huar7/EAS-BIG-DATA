@@ -25,8 +25,6 @@ def Rdata():
     once = 0
     column = pyspark.sql.types.StructType([])
 
-    df = spark.createDataFrame(data=[], schema=column)
-
     """
     Pyspark hanya menerima dalam bentuk Dictionaries, sehingga kita harus membuat fungsi yang mengubah setiap nilai yang ada di dalam fungsi tersebut menjadi suatu dict
     """
@@ -48,8 +46,12 @@ def Rdata():
                         maxi = find_largest(nilai_data)
                         print(maxi)
                         maxum = dataframe_normalization(
-                            nilai_data, len(nilai_data[maxi]), spark
+                            nilai_data, len(nilai_data[maxi])
                         )
+                        optimus_prime = god_merge(chronos, maxum)
+
+                        df = spark.createDataFrame(data=optimus_prime)
+                        df.show()
                     # -- NOTES;
 
                     once += 1
@@ -77,8 +79,8 @@ def find_largest(nil: dict) -> str:
     return pos
 
 
-def dataframe_normalization(data: dict, amount: int, sesi_spark: SparkSession):
-    """Amount adalah jumlah seharusnya dari data tersebut"""
+def dataframe_normalization(data: dict, amount: int):
+    """Fungsi yang digunakan untuk mengubah bentuk data list dengan dictionaries yang berisi list untuk berubah menjadi , Amount adalah jumlah seharusnya dari data tersebut"""
     junia = [*data]
     for i in junia:
         iterasi = amount - len(data[i])
@@ -91,10 +93,16 @@ def dataframe_normalization(data: dict, amount: int, sesi_spark: SparkSession):
                         data[i][-1]
                     )  # // ini untuk menormalisasi data yang kosong dimana akan mengisi dengan nilai yang atas
     to_dict = [dict(zip(data.keys(), values)) for values in zip(*data.values())]
-    print(to_dict)
+
+    return to_dict
 
 
-#   hasil = sesi_spark.createDataFrame()
+def god_merge(data1, data2):
+    """Fungsi yang digunakan untuk menggabungkan 2 list dengan isi Dictionaries dengan update()"""
+    data3 = []
+    for i in range(len(data1)):
+        data3.append(data1[i] | data2[i])
+    return data3
 
 
 if __name__ == "__main__":
