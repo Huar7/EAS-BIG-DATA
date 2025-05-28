@@ -102,6 +102,7 @@ def god_merge(data1, data2):
     data3 = []
     for i in range(len(data1)):
         data3.append(data1[i] | data2[i])
+    print(data3)
     return data3
 
 
