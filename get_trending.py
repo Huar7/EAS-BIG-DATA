@@ -23,7 +23,6 @@ def parse(source):
                 break  # .. ini untuk melompati nilai bawahnya
 
     ticker = [t.decode("utf-8").strip() for t in ticker]
-    print(ticker)
     return ticker
 
 

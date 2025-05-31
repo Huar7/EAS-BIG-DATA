@@ -4,6 +4,7 @@ from kafka.admin import KafkaAdminClient, NewTopic
 # from pyspark.sql import SparkSession
 
 import json
+import get_trending
 
 # from multiprocessing import Process
 import main2
@@ -11,12 +12,12 @@ import time
 
 
 def Wdata():
+    indes = get_trending.trending()
     print(
         "menyiapkan mesin"
     )  # // memberikan waktu untuk kafka untuk berjalan terlebih dahulu
-    time.sleep(30)
+    time.sleep(30)  # // untuk memastikan apache kafka telah berjalan
     once = 0
-    indes = ["BTC-USD", "XRP-USD", "NVAX", "MSFT", "AAPL"]
     start_val = main2.yf_first(indes)
     while True:
         continous_val = main2.data_ingest_run(indes)
