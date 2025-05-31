@@ -62,7 +62,7 @@ def Rdata():
                     stream_frame = spark.createDataFrame(maxum)
                     stream_frame.show()
                     print("ok 1")
-                    df = df.union(stream_frame)
+                    df = df.union(stream_frame) # // tidak usah pedulikan eror, karena run pertama pasti terjadi
                     print(df.tail(1))
 
                     # -- NOTES;
