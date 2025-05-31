@@ -11,7 +11,7 @@ from yfinance import data
 # from multiprocessing import Process
 
 
-def Rdata():
+def Rdata(time, iter):
     spark = SparkSession.builder.appName("main_app").getOrCreate()
     consumer = kf.KafkaConsumer(
         "stock_kotor",
@@ -62,6 +62,8 @@ def Rdata():
                     stream_frame = spark.createDataFrame(maxum)
                     stream_frame.show()
                     print("ok 1")
+
+                    """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
                     df = df.union(stream_frame) # // tidak usah pedulikan eror, karena run pertama pasti terjadi
                     print(df.tail(1))
 
