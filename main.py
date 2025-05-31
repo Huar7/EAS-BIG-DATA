@@ -1,43 +1,20 @@
 import kafka as kf
 from kafka.admin import KafkaAdminClient, NewTopic
-import pyspark as psp
-from pyspark.sql import SparkSession
+# import pyspark as psp
+# from pyspark.sql import SparkSession
 
 import json
-from multiprocessing import Process
+
+# from multiprocessing import Process
 import main2
 import time
 
 
-def belajar():
-    # // membuat admin untuk membuat topic kafka
-    sosok_admin = KafkaAdminClient(
-        bootstrap_servers=["localhost:9092"], client_id="client_1"
-    )
-    gosip = NewTopic(name="utama", num_partitions=1, replication_factor=1)
-    sosok_admin.create_topics(new_topics=[gosip], validate_only=False)
-
-    consumer = kf.KafkaConsumer(
-        "main",
-        bootstrap_servers=["localhost:9092"],
-        auto_offset_reset="earliest",
-        enable_auto_commit=False,
-        group_id="my_group_id",
-        value_deserializer=lambda x: x.decode("utf8"),
-    )
-    consumer.subscribe(topics=["main"])
-
-    # // menunggu masukan baru
-    while True:
-        msg = consumer.poll(timeout_ms=1000)
-        if msg:
-            for key, value in msg.items():
-                print("Key: {} | Value: {}".format(key, value))
-        else:
-            print("No new messages")
-
-
 def Wdata():
+    print(
+        "menyiapkan mesin"
+    )  # // memberikan waktu untuk kafka untuk berjalan terlebih dahulu
+    time.sleep(30)
     once = 0
     indes = ["BTC-USD", "XRP-USD", "NVAX", "MSFT", "AAPL"]
     start_val = main2.yf_first(indes)
