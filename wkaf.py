@@ -4,7 +4,6 @@ from kafka.admin import KafkaAdminClient, NewTopic
 import json
 
 # from multiprocessing import Process
-import main2
 import time
 
 import requests
