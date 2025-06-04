@@ -1,19 +1,9 @@
+from logging import disable
 import streamlit as st
-
 import wkaf as kw
 import spark_builder as sb
+from calendar import month_abbr as mnthabr
 from datetime import datetime
-
-
-pilihan_waktu = ["1 jam", "1 hari", "5 hari", "1 minggu", "1 bulan", "3 bulan"]
-periode_sel = {
-    "1 jam": "1h",
-    "1 hari": "1d",
-    "5 hari": "5d",
-    "1 minggu": "1wk",
-    "1 bulan": "1mo",
-    "3 bulan": "3mo",
-}
 
 
 def toggle_stream():
@@ -33,21 +23,27 @@ st.sidebar.button(
     "Stop Stream Data", disabled=not st.session_state.time, on_click=toggle_stream
 )
 
-with st.sidebar.expander("Pilih Periode data"):
-    period_arr = st.radio(
-        "",
-        pilihan_waktu,
-        horizontal=False,
+st.sidebar.slider("Kecepatan Streaming", 30.0, 60.0, value=45.0, key="run_stream")
+st.sidebar.slider("Kecepatan receiver", 0.25, 1.0, value=0.5, key="run_receiv")
+
+with st.sidebar.expander("Report month"):
+    this_year = datetime.now().year
+    this_month = datetime.now().month
+    report_year = st.selectbox(
+        "", range(this_year, this_year - 10, -1), disabled=st.session_state.time
     )
-
-with st.sidebar.expander("Setting Streaming"):
-    st.slider("Kecepatan Streaming", 30.0, 60.0, value=45.0, key="run_stream")
-    st.slider("Kecepatan receiver", 0.25, 1.0, value=0.5, key="run_receiv")
-
-period = periode_sel[period_arr]
+    month_abbr = mnthabr[1:]
+    report_month_str = st.radio(
+        "",
+        month_abbr,
+        index=this_month - 1,
+        horizontal=True,
+        disabled=st.session_state.time,
+    )
+    report_month = month_abbr.index(report_month_str) + 1  # // Hasil
 
 # Result
-st.sidebar.text(f"{period}")
+st.sidebar.text(f"{report_year} {report_month_str}, {report_month}")
 if st.session_state.time is True:
     run_stream = st.session_state.run_stream
     run_receiv = st.session_state.run_receiv
