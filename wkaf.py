@@ -9,31 +9,41 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
+from pandas.core.dtypes.inference import iterable_not_string
 import yfinance as yf
 import pandas as pd
 
 
-def yf_first(isi: list, waktu):
-    starter = yf.download(isi, period="5y", interval="1wk")
-    hasil = {}
+def yf_first(isi: list, waktu: str):
+    starter = yf.Tickers(isi)
+    historis = starter.history(period=waktu, interval="1m", progress=False, repair=True)
+
+    # kembalikan = ['Dividends', 'High', 'Low', 'Open', 'Stock Splits', 'Volume'] # // ini adalah daftar variabel yang nilainya akan di return, tidak secara programming untuk optimisasi
+
+    # // apakah benar - benar dibutuhkan variabel lainnya?
+
+    hasil = {}  # // ini untuk mengatasi nilai Close
     once = 0
-    nulia = []
-    for i in starter["Close"]:
-        julia = starter["Close"][i].dropna()
+    nulia = []  # // ini untuk mengatasi nilai Timestamp
+    nilia = {}  # // ini untuk mengatasi nilai lainnya
+    for i in historis["Close"]:
+        julia = historis["Close"][
+            i
+        ].dropna()  # // kita harus mengembalikan nilai selain close juga D;
         nalia = []
-        for kukukaka in range(len(julia)):
-            nalia.append(julia[kukukaka].item())
+        for j in range(len(julia)):
+            nalia.append(julia[j].item())  # // return data
             if once == 0:
-                nulia.append(
-                    {"Timestamp": julia.index[kukukaka].strftime("%Y/%m/%d %X")}
-                )
+                nulia.append({"Timestamp": julia.index[j].strftime("%Y/%m/%d %X")})
         once = 1
 
         hasil[i] = nalia
+    # for i in historis:
+
     return (hasil, nulia)
 
 
-def data_ingest_run(isi: list, waktu):
+def data_ingest_run(isi: list):
     info = yf.Tickers(isi)
     hasil = {}
     try:
@@ -48,9 +58,8 @@ def data_ingest_run(isi: list, waktu):
         data_ingest_run(isi)
 
 
-if __name__ == "__main__":
-    indes = ["BTC-USD", "XRP-USD", "NVAX"]
-    data_ingest_run(indes)
+# ini untuk melakukan Scrapping dan mendapatkan stock yang paling populer
+# scrapping ini menggunakan Beautifullsoup
 
 
 def parse(source):
@@ -87,15 +96,18 @@ def trending():
     return trend
 
 
-def Wdata(waktu, iter):
+# ini untuk menerima nilai dari yfinance tersebut dan langsung mengirimnya ke kafka
+
+
+def Wdata(waktu: str, iter):
     indes = trending()
     print(
         "menyiapkan mesin"
     )  # // memberikan waktu untuk kafka untuk berjalan terlebih dahulu
     time.sleep(30)  # // untuk memastikan apache kafka telah berjalan
     once = 0
-    start_val = yf_first(indes)
-    while True:
+    start_val = yf_first(indes, waktu)
+    if iter != 0:
         continous_val = data_ingest_run(indes)
 
         print(f"start value: {type(start_val)}, continous value: {type(continous_val)}")
@@ -118,8 +130,7 @@ def Wdata(waktu, iter):
             print(" \n sukses 2")
             # break
         produser.flush()
-        time.sleep(10)
 
 
 if __name__ == "__main__":
-    Wdata()
+    Wdata("1wk", 0)

@@ -11,7 +11,7 @@ from yfinance import data
 # from multiprocessing import Process
 
 
-def Rdata(time, iter):
+def Rdata(iter):
     spark = SparkSession.builder.appName("main_app").getOrCreate()
     consumer = kf.KafkaConsumer(
         "stock_kotor",
@@ -30,7 +30,7 @@ def Rdata(time, iter):
 
     nil_min_one = {}  # // nil_min_one atau nil[-1] adalah nilai yang akan menyimpan nilai
 
-    while True:
+    if iter != 0:
         msg = consumer.poll(timeout_ms=1000)
         if msg:
             for _, value in msg.items():
@@ -57,15 +57,19 @@ def Rdata(time, iter):
                         )  # // NOTES tidak menemukan cara untuk membuat dataframe menjadi dalam bentuk / tidak perlu di sort column nya
                         df.show()
                         once += 1
-                        break
-                    maxum = datastream_normalization(nilai_data, chronos, nil_min_one)
-                    stream_frame = spark.createDataFrame(maxum)
-                    stream_frame.show()
-                    print("ok 1")
+                    else:
+                        maxum = datastream_normalization(
+                            nilai_data, chronos, nil_min_one
+                        )
+                        stream_frame = spark.createDataFrame(maxum)
+                        stream_frame.show()
+                        print("ok 1")
 
-                    """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
-                    df = df.union(stream_frame) # // tidak usah pedulikan eror, karena run pertama pasti terjadi
-                    print(df.tail(1))
+                        """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
+                        df = df.union(
+                            stream_frame
+                        )  # // tidak usah pedulikan eror, karena run pertama pasti terjadi
+                        print(df.tail(1))
 
                     # -- NOTES;
 
@@ -73,8 +77,6 @@ def Rdata(time, iter):
                     print("Kode I, Lompati atau Tidak Bisa")
         else:
             print("No new messages \n")
-        if once >= 5:
-            break  # // comment ini untuk membiarkan loop tanpa batas
 
 
 def find_largest(nil: dict) -> str:

@@ -2,17 +2,22 @@ import streamlit as st
 
 import wkaf as kw
 import spark_builder as sb
-from datetime import datetime
 
 
-pilihan_waktu = ["1 jam", "1 hari", "5 hari", "1 minggu", "1 bulan", "3 bulan"]
+def change_time():
+    print(
+        "===============================================================",
+        st.session_state.period,
+    )
+
+
+pilihan_waktu = ["1 jam", "1 hari", "5 hari", "1 minggu", "1 bulan"]
 periode_sel = {
     "1 jam": "1h",
     "1 hari": "1d",
     "5 hari": "5d",
     "1 minggu": "1wk",
     "1 bulan": "1mo",
-    "3 bulan": "3mo",
 }
 
 
@@ -22,6 +27,7 @@ def toggle_stream():
 
 if "data" not in st.session_state:
     st.session_state.data = []
+    st.session_state.itter = 0
 
 
 if "time" not in st.session_state:
@@ -39,22 +45,13 @@ with st.sidebar.expander("Pilih Periode data"):
         pilihan_waktu,
         horizontal=False,
     )
+    period = periode_sel[period_arr]
+    st.session_state.period = period  # // it just work?
+    change_time()
 
-with st.sidebar.expander("Setting Streaming"):
-    st.slider("Kecepatan Streaming", 30.0, 60.0, value=45.0, key="run_stream")
-    st.slider("Kecepatan receiver", 0.25, 1.0, value=0.5, key="run_receiv")
-
-period = periode_sel[period_arr]
 
 # Result
 st.sidebar.text(f"{period}")
-if st.session_state.time is True:
-    run_stream = st.session_state.run_stream
-    run_receiv = st.session_state.run_receiv
-    print("mie sukses isi 5")
-else:
-    run_stream = None
-    run_receiv = None
 
 
 def run_fn():
@@ -65,15 +62,17 @@ def run_fn2():
     print("sukses12")
 
 
-@st.fragment(run_every=run_stream)
+@st.fragment(run_every=60)
 def fragment_d_data():
-    run_fn()
+    # sb.Rdata(st.session_state.itter)
+    st.session_state.itter += 1
 
 
-@st.fragment(run_every=run_receiv)
+@st.fragment(run_every=0.5)
 def fragment_g_data():
-    run_fn2()
+    pass
 
 
+# // ini untuk melakukan iterasi setiap beberapa detik
 fragment_g_data()
 fragment_d_data()
