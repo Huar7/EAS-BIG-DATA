@@ -18,8 +18,10 @@ Project ini memiliki beragam file dengan fungsi mereka masing - masing (yang kem
 ## Hal yang harus diperbaiki
 - [ ] interval download untuk data seragam, gunakan interval per menit (sangat boros)
 
-## Main - 
-- [x] membuat docker container
-- [x] Membenarkan fungsi dari first run dan ingest run
-- [x] mengatur bagaiamana dashboard.py memberikan aturan dan bagaiamana fungsi tersebut menerima (streamed?)
-- [x] mengirim data ke postgresql dengan menggunakan psycopg2
+## Main - Task
+- [x] Memperbaiki Rdata -- ada  yang salah dengan kafka nya. ealah ternyata hanya satu kesalahan bodoh
+
+sesi berikutnya
+- [ ] Membangun algoritma pengiriman ke postgresql
+- [ ] Menyiapkan untuk melakukan ARIMA
+- [ ] Benerin fungsi2 di dashboard.py

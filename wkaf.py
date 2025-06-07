@@ -13,6 +13,40 @@ from pandas.core.dtypes.inference import iterable_not_string
 import yfinance as yf
 import pandas as pd
 
+import spark_builder as sb
+
+
+# ini untuk melakukan Scrapping dan mendapatkan stock yang paling populer
+# scrapping ini menggunakan Beautifullsoup
+def parse(source):
+    soup = BeautifulSoup(source.content, "html.parser")
+
+    ticker = []
+    for tbody in soup.find_all("tbody"):
+        for tr in tbody.findAll("tr"):
+            for tickerCol in tr.findAll("td"):
+                # print(tickerCol)
+                for span in tickerCol.findAll("span"):
+                    txt = span.get_text()
+                    # Encoding in utf-8 to remove the u character from the list
+                    ticker.append(txt.encode("utf-8"))
+                    break
+                break  # .. ini untuk melompati nilai bawahnya
+
+    ticker = [t.decode("utf-8").strip() for t in ticker]
+    return ticker
+
+
+def trending():
+    session = requests.Session()
+    url = "https://finance.yahoo.com/trending-tickers"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"  # // emulasikan model browser
+    }
+    req = session.get(url, headers=headers)
+    trend = parse(req)
+    return trend
+
 
 def yf_first(isi: list, waktu: str):
     starter = yf.Tickers(isi)
@@ -25,7 +59,6 @@ def yf_first(isi: list, waktu: str):
     hasil = {}  # // ini untuk mengatasi nilai Close
     once = 0
     nulia = []  # // ini untuk mengatasi nilai Timestamp
-    nilia = {}  # // ini untuk mengatasi nilai lainnya
     for i in historis["Close"]:
         julia = historis["Close"][
             i
@@ -58,77 +91,28 @@ def data_ingest_run(isi: list):
         data_ingest_run(isi)
 
 
-# ini untuk melakukan Scrapping dan mendapatkan stock yang paling populer
-# scrapping ini menggunakan Beautifullsoup
-
-
-def parse(source):
-    soup = BeautifulSoup(source.content, "html.parser")
-
-    ticker = []
-    print(soup)
-    for tbody in soup.find_all("tbody"):
-        print("sukses 1")
-        for tr in tbody.findAll("tr"):
-            print("sukses 2")
-            for tickerCol in tr.findAll("td"):
-                # print(tickerCol)
-                for span in tickerCol.findAll("span"):
-                    print("Mie Sukses isi 2")
-                    txt = span.get_text()
-                    # Encoding in utf-8 to remove the u character from the list
-                    ticker.append(txt.encode("utf-8"))
-                    break
-                break  # .. ini untuk melompati nilai bawahnya
-
-    ticker = [t.decode("utf-8").strip() for t in ticker]
-    return ticker
-
-
-def trending():
-    session = requests.Session()
-    url = "https://finance.yahoo.com/trending-tickers"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"  # // emulasikan model browser
-    }
-    req = session.get(url, headers=headers)
-    trend = parse(req)
-    return trend
-
-
 # ini untuk menerima nilai dari yfinance tersebut dan langsung mengirimnya ke kafka
 
 
 def Wdata(waktu: str, iter):
     indes = trending()
-    print(
-        "menyiapkan mesin"
-    )  # // memberikan waktu untuk kafka untuk berjalan terlebih dahulu
-    time.sleep(30)  # // untuk memastikan apache kafka telah berjalan
-    once = 0
-    start_val = yf_first(indes, waktu)
-    if iter != 0:
+    produser = kf.KafkaProducer(bootstrap_servers="localhost:9092")
+    if iter == 0:
+        start_val = yf_first(indes, waktu)
+
+        produser.send(
+            topic="stock_kotor",
+            value=json.dumps(start_val, default=str).encode("utf-8"),
+        )
+        produser.flush()
+
+    else:
+        print("jal1")
         continous_val = data_ingest_run(indes)
-
-        print(f"start value: {type(start_val)}, continous value: {type(continous_val)}")
-
-        produser = kf.KafkaProducer(bootstrap_servers="localhost:9092")
-        if once == 0:
-            print(" \n kirim 1")
-            produser.send(
-                topic="stock_kotor",
-                value=json.dumps(start_val, default=str).encode("utf-8"),
-            )
-            once += 1
-            print(" \n sukses 1")
-        else:
-            print(" \n kirim 2")
-            produser.send(
-                topic="stock_kotor",
-                value=json.dumps(continous_val, default=str).encode("utf-8"),
-            )
-            print(" \n sukses 2")
-            # break
+        produser.send(
+            topic="stock_kotor",
+            value=json.dumps(continous_val, default=str).encode("utf-8"),
+        )
         produser.flush()
 
 

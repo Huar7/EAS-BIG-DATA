@@ -3,25 +3,17 @@ from pyspark.sql import SparkSession
 
 import kafka as kf
 
-import json
 import math
 
 from yfinance import data
 
+
 # from multiprocessing import Process
 
 
-def Rdata(iter):
+def Rdata(iter, consumer) -> int:
     spark = SparkSession.builder.appName("main_app").getOrCreate()
-    consumer = kf.KafkaConsumer(
-        "stock_kotor",
-        bootstrap_servers=["localhost:9092"],
-        auto_offset_reset="latest",  # // ini untuk model pengambilan data: latest untuk mengambil data yang baru di luncurkan
-        enable_auto_commit=False,  # //
-        group_id="my_group_id",
-        value_deserializer=lambda x: json.loads(x.decode("utf-8")),
-    )
-    consumer.subscribe(topics=["stock_kotor"])
+    msg = consumer.poll(10)
     once = 0
 
     """
@@ -29,54 +21,51 @@ def Rdata(iter):
     """
 
     nil_min_one = {}  # // nil_min_one atau nil[-1] adalah nilai yang akan menyimpan nilai
+    if msg:
+        print("Masuk 1")
+        for _, value in msg.items():
+            try:
+                nilai_panggilan = value[0].value
+                nilai_data = nilai_panggilan[0]
+                chronos = nilai_panggilan[1]
+                print(f"nilai Panggilan {nilai_panggilan} {'=' * 50}")
 
-    if iter != 0:
-        msg = consumer.poll(timeout_ms=1000)
-        if msg:
-            for _, value in msg.items():
-                try:
-                    # // FixMe: ini kenapa tetap str terus ya: ubah semua Timestamp menjadi dalam bentuk str
-                    nilai_panggilan = value[0].value
-                    nilai_data = nilai_panggilan[0]
-                    chronos = nilai_panggilan[1]
-                    print(f"nilai Panggilan {nilai_panggilan} {'=' * 50}")
+                if iter == 0:
+                    print("langkah 1")
+                    maxi = find_largest(nilai_data)
+                    maxum = dataframe_normalization(nilai_data, len(nilai_data[maxi]))
+                    nil_min_one = maxum[-1]
+                    print("langkah 2")
+                    optimus_prime = god_merge(chronos, maxum)
 
-                    if (
-                        once == 0
-                    ):  # // ini untuk mengatasi ketimpangan data awalan (Downloads)
-                        maxi = find_largest(nilai_data)
-                        print(maxi)
-                        maxum = dataframe_normalization(
-                            nilai_data, len(nilai_data[maxi])
-                        )
-                        nil_min_one = maxum[-1]
-                        optimus_prime = god_merge(chronos, maxum)
+                    df = spark.createDataFrame(
+                        optimus_prime
+                    )  # // NOTES tidak menemukan cara untuk membuat dataframe menjadi dalam bentuk / tidak perlu di sort column nya
+                    df.show()
+                    once += 1
+                else:
+                    print("langkah 3")
+                    maxum = datastream_normalization(nilai_data, chronos, nil_min_one)
+                    print("langkah 4")
+                    stream_frame = spark.createDataFrame(maxum)
+                    print("langkah 5")
+                    stream_frame.show()
+                    print("ok 1")
 
-                        df = spark.createDataFrame(
-                            optimus_prime
-                        )  # // NOTES tidak menemukan cara untuk membuat dataframe menjadi dalam bentuk / tidak perlu di sort column nya
-                        df.show()
-                        once += 1
-                    else:
-                        maxum = datastream_normalization(
-                            nilai_data, chronos, nil_min_one
-                        )
-                        stream_frame = spark.createDataFrame(maxum)
-                        stream_frame.show()
-                        print("ok 1")
-
-                        """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
-                        df = df.union(
-                            stream_frame
-                        )  # // tidak usah pedulikan eror, karena run pertama pasti terjadi
-                        print(df.tail(1))
+                    """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
+                    df = df.union(
+                        stream_frame
+                    )  # // tidak usah pedulikan eror, karena run pertama pasti terjadi
+                    print(df.tail(1))
 
                     # -- NOTES;
+                return 0
 
-                except:
-                    print("Kode I, Lompati atau Tidak Bisa")
-        else:
-            print("No new messages \n")
+            except:
+                print("Kode I, Lompati atau Tidak Bisa")
+    else:
+        print("No new messages \n")
+        return 1
 
 
 def find_largest(nil: dict) -> str:
