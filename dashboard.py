@@ -11,6 +11,9 @@ import json
 import pyspark
 from pyspark.sql import SparkSession
 
+from sqlalchemy import create_engine
+
+engine = create_engine("postgresql://NurHary:ForourDreams@localhost:5431/NurHary")
 # // inisialisasi Spark dan consumer disini untuk mempercepat sistem kerja fungsi Rdata
 # // untuk kafka sendiri supaya dapat menerima nilai dengan cara fungsi recursive seperti yang dapat kita lihat dibawahjal
 spark = SparkSession.builder.appName("main_app").getOrCreate()
@@ -35,6 +38,8 @@ if "data" not in st.session_state:
     st.session_state.data = []
     st.session_state.itter = 0
     st.session_state.nil_one = {}
+    st.session_state.dfer = None
+    st.session_state.unwanted_list = []
 
 if "time" not in st.session_state:
     st.session_state.time = False
@@ -73,12 +78,15 @@ def fragment_receive_data():
     # // mungkin gak usah, tapi aku ingin sekali
     # print("luh ngeloop")
     kelanjutan = sb.Rdata(
-        st.session_state.itter, consumer, st.session_state.nil_one, spark
+        st.session_state.itter, consumer, st.session_state.nil_one, spark, engine, st.session_state.dfer, st.session_state.unwanted_list
     )
     print(st.session_state.time, st.session_state.itter)
     if kelanjutan[0] == 0:
         st.session_state.itter += 1
         st.session_state.nil_one = kelanjutan[1]
+        st.session_state.dfer = kelanjutan[2]
+        st.session_state.unwanted_list = kelanjutan[3]
+        
         # // ini kita akan isi dengan pengiriman pada
 
 

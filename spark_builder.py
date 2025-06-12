@@ -1,14 +1,13 @@
 import kafka as kf
-
 import math
-
 from yfinance import data
-
+from send_db import send_val
+import pandas as pd
 
 # from multiprocessing import Process
 
 
-def Rdata(iter, consumer, nil_one, spark):
+def Rdata(iter, consumer, nil_one, spark, engine, data_last, unwanted_list):
     msg = consumer.poll(10)
 
     """
@@ -17,7 +16,6 @@ def Rdata(iter, consumer, nil_one, spark):
 
     nil_min_one = {}  # // nil_min_one atau nil[-1] adalah nilai yang akan menyimpan nilai
     if msg:
-        print("Masuk 1")
         for _, value in msg.items():
             try:
                 nilai_panggilan = value[0].value
@@ -28,10 +26,9 @@ def Rdata(iter, consumer, nil_one, spark):
                 if iter == 0:
                     print("langkah 1")
                     maxi = find_largest(nilai_data)
-                    print(nilai_data, "\n \n", nilai_data[maxi])
                     mixue = check_error(nilai_data)
                     maxum = dataframe_normalization(
-                        mixue, len(mixue[maxi])
+                        mixue[0], len(mixue[0][maxi])
                     )  # // ini masih bisa mengalami kehancuran apabila ada yang nilainya 0
                     nil_min_one = maxum[-1]
                     print("langkah 2")
@@ -40,35 +37,48 @@ def Rdata(iter, consumer, nil_one, spark):
                     df = spark.createDataFrame(
                         optimus_prime
                     )  # // NOTES tidak menemukan cara untuk membuat dataframe menjadi dalam bentuk / tidak perlu di sort column nya
-                    df.show()
-                    return (0, nil_min_one)
+                    df = df.toPandas()
+                    print("panjang: ", len(df))
+
+
+                    send_val(df, engine)
+    
+
+                    return (0, nil_min_one, df, mixue[1])
                 else:
                     print("langkah 3")
+                    if unwanted_list:
+                        print(unwanted_list)
+                        print("gak kosong")
+                        for j in unwanted_list:
+                            print(j)
+                            for xn in j:
+                                del nilai_data[xn]
                     maxum = datastream_normalization(
                         nilai_data, chronos, nil_one
                     )  # // nil min one kosong
                     print("langkah 4")
                     stream_frame = spark.createDataFrame(maxum)
                     print("langkah 5")
-                    stream_frame.show()
+                    df = stream_frame.toPandas()
                     print("ok 1")
 
                     """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
-                    # df = df.union(
-                    #     stream_frame
-                    # )
-                    # print(df.tail(1))
-                    # // ini tidak perlu, kita akan menggabungkan via postgres saja
-                    return (0, nil_one)
+
+                    df = pd.concat([df, data_last])
+                    print("panjang: ", len(df))
+                    send_val(df, engine)
+
+                    return (0, nil_one, df, unwanted_list)
 
                     # -- NOTES;
 
             except:
                 print("Kode I, Lompati atau Tidak Bisa")
-                return (1, nil_min_one)
+                return (1, nil_min_one, None, [])
     else:
         print("No new messages \n")
-        return (1, {})
+        return (1, {}, None, [])
 
 
 def find_largest(nil: dict) -> str:
@@ -83,10 +93,14 @@ def find_largest(nil: dict) -> str:
 
 
 def check_error(data_input: dict):
+    """Fungsi ini digunakan untuk mengantisipasi apabila salah satu ticker tidak memiliki satupun nilai"""
+    hasil = []
     for i in [*data_input]:
         if len(data_input[i]) == 0:
+            print("i sama dengan: ",i)
+            hasil.append([i])
             del data_input[i]
-    return data_input
+    return (data_input, hasil)
 
 
 def dataframe_normalization(data: dict, amount: int):

@@ -11,14 +11,14 @@ Project ini memiliki beragam file dengan fungsi mereka masing - masing (yang kem
 ## Todo:
 - [x] top_stock(): menambahkan fungsi yang akan melakukan scrapping pada website yahoo finance untuk mendapatkan simbol trend untuk stock market
 - [x] datastream_normalization(): Menambahkan fungsi untuk mengubah model data streamed menjadi struktur yang dapat diterima oleh pyspark
-- [ ] menambahkan sistem pengiriman data yang dibuat oleh pyspark dan data prediksi pyspark ke postgres (Pasial)
+- [x] menambahkan sistem pengiriman data yang dibuat oleh pyspark dan data prediksi pyspark ke postgres (Pasial)
 - [ ] membuat daashboard
 
 
 ## Hal yang harus diperbaiki
-- [ ] interval download untuk data seragam, gunakan interval per menit (sangat boros)
+- [x] interval download untuk data seragam, gunakan interval per menit (sangat boros)
 
 ## Main - Task
-- [ ] Membuat send_db dengan isi untuk melakukan pengiriman pada database (via psycopg2) yang akan dijalankan setiap Rdata return 0
+- [x] Membuat send_db dengan isi untuk melakukan pengiriman pada database (via psycopg2) yang akan dijalankan setiap Rdata return 0
 - [ ] Mencari tahu cara melakukan ML
 - [ ] Membuat main_ml yang akan dijalankan setiap Rdata return 0

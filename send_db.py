@@ -1,8 +1,11 @@
 import psycopg2 as psy
-from pyspark.sql.dataframe import DataFrame
+import pandas as pd
+from sqlalchemy.engine.base import Engine
 
-def send_to_postgres(iter: int, data: DataFrame):
-    err_val = 1
+
+def send_val(data: pd.DataFrame, engine: Engine):
+    """Fungsi ini ada untuk mengirim data pandas ke postgresql"""
+
     con = psy.connect(
         host="localhost",
         database="NurHary",
@@ -11,13 +14,9 @@ def send_to_postgres(iter: int, data: DataFrame):
         port="5431",
     )
     cur = con.cursor()
+    cur.execute("drop table if exists data_kotor;")
+    con.commit()
 
-    if iter == 0:
-        try:
-            pass
-        except:
-            pass
-        pass
-    else:
-        pass
-    pass
+    data.to_sql("data_kotor", engine, index=False)
+    cur.close()
+    con.close()
