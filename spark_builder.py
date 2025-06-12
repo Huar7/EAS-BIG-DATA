@@ -1,6 +1,3 @@
-import pyspark
-from pyspark.sql import SparkSession
-
 import kafka as kf
 
 import math
@@ -11,10 +8,8 @@ from yfinance import data
 # from multiprocessing import Process
 
 
-def Rdata(iter, consumer) -> int:
-    spark = SparkSession.builder.appName("main_app").getOrCreate()
+def Rdata(iter, consumer, nil_one, spark):
     msg = consumer.poll(10)
-    once = 0
 
     """
     Pyspark hanya menerima dalam bentuk Dictionaries, sehingga kita harus membuat fungsi yang mengubah setiap nilai yang ada di dalam fungsi tersebut menjadi suatu dict
@@ -28,12 +23,17 @@ def Rdata(iter, consumer) -> int:
                 nilai_panggilan = value[0].value
                 nilai_data = nilai_panggilan[0]
                 chronos = nilai_panggilan[1]
-                print(f"nilai Panggilan {nilai_panggilan} {'=' * 50}")
+                # print(f"nilai Panggilan {nilai_panggilan} {'=' * 50}")
 
                 if iter == 0:
                     print("langkah 1")
                     maxi = find_largest(nilai_data)
-                    maxum = dataframe_normalization(nilai_data, len(nilai_data[maxi]))
+                    print(nilai_data, "\n \n", nilai_data[maxi])
+                    print("langkah 1.1")
+                    maxum = nilai_data
+                    for i in [*maxum]:
+                        print(len(maxum[i]))
+                    print("langkah 1.2")
                     nil_min_one = maxum[-1]
                     print("langkah 2")
                     optimus_prime = god_merge(chronos, maxum)
@@ -42,10 +42,12 @@ def Rdata(iter, consumer) -> int:
                         optimus_prime
                     )  # // NOTES tidak menemukan cara untuk membuat dataframe menjadi dalam bentuk / tidak perlu di sort column nya
                     df.show()
-                    once += 1
+                    return (0, nil_min_one)
                 else:
                     print("langkah 3")
-                    maxum = datastream_normalization(nilai_data, chronos, nil_min_one)
+                    maxum = datastream_normalization(
+                        nilai_data, chronos, nil_one
+                    )  # // nil min one kosong
                     print("langkah 4")
                     stream_frame = spark.createDataFrame(maxum)
                     print("langkah 5")
@@ -53,48 +55,24 @@ def Rdata(iter, consumer) -> int:
                     print("ok 1")
 
                     """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
-                    df = df.union(
-                        stream_frame
-                    )  # // tidak usah pedulikan eror, karena run pertama pasti terjadi
-                    print(df.tail(1))
+                    # df = df.union(
+                    #     stream_frame
+                    # )
+                    # print(df.tail(1))
+                    # // ini tidak perlu, kita akan menggabungkan via postgres saja
+                    return (0, nil_one)
 
                     # -- NOTES;
-                return 0
 
             except:
                 print("Kode I, Lompati atau Tidak Bisa")
+                return (1, nil_min_one)
     else:
         print("No new messages \n")
-        return 1
+        return (1, {})
 
 
 def find_largest(nil: dict) -> str:
-    panjang = []
-    naila = [*nil]
-    for i in naila:
-        panjang.append(len(nil[i]))
-    maxi = max(panjang)
-    posisi = panjang.index(maxi)
-    pos = naila[posisi]
-    return pos
-
-
-def dataframe_normalization(data: dict, amount: int):
-    """Fungsi yang digunakan untuk mengubah bentuk data list dengan dictionaries yang berisi list untuk berubah menjadi , Amount adalah jumlah seharusnya dari data tersebut"""
-    junia = [*data]
-    for i in junia:
-        iterasi = amount - len(data[i])
-        match iterasi:
-            case 0:
-                pass
-            case _:
-                for _ in range(iterasi):
-                    data[i].append(
-                        data[i][-1]
-                    )  # // ini untuk menormalisasi data yang kosong dimana akan mengisi dengan nilai yang atas
-    to_dict = [dict(zip(data.keys(), values)) for values in zip(*data.values())]
-
-    return to_dict
 
 
 def datastream_normalization(data: dict, data2: dict, andval: dict):

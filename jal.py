@@ -1,8 +1,7 @@
-import json
-
+from numpy import save
+from requests import options
+from pyspark.sql import SparkSession, DataFrameWriterV2
 import psycopg2 as psy
-
-import kafka as kf
 
 
 def main():
@@ -15,7 +14,7 @@ def main():
     )
     print("connect?")
     cur = con.cursor()
-    cur.execute("select data from jajal")
+    cur.execute("select istri from jajal")
     rows = cur.fetchall()
     for r in rows:
         print(f"hasil: {r}")
@@ -24,21 +23,26 @@ def main():
 
 
 def main2():
-    consumer = kf.KafkaConsumer(
-        "stock_kotor",
-        bootstrap_servers="localhost:9092",
-        auto_offset_reset="latest",  # // ini untuk model pengambilan data: latest untuk mengambil data yang baru di luncurkan
-        enable_auto_commit=False,  # //
-        value_deserializer=lambda x: json.loads(x.decode("utf-8")),
+    jajal = [
+        {"ageh": 20, "istri": 4, "bcount": 30},
+        {"ageh": 31, "istri": 200, "bcount": 300000},
+        {"ageh": 67, "istri": 0, "bcount": 2},
+        {"ageh": 10, "istri": 6106, "bcount": 125021493104821051623},
+        {"ageh": 25, "istri": 136013, "bcount": 1},
+        {"ageh": 28, "istri": 1, "bcount": 1000},
+        {"ageh": 4, "istri": 0, "bcount": 1},
+        {"ageh": 35, "istri": 1, "bcount": 34},
+    ]
+    spark = (
+        SparkSession.builder.appName("main_app")
+        .config("spark.jars", "jars/postgresql-42.2.27.jar")
+        .getOrCreate()
     )
-    consumer.subscribe(["stock_kotor"])
-    
-    msg = consumer.poll(timeout_ms=1000) # // ini biang keroknya suuu
-    if msg:
-        print(msg)
-        return 0
-    main2()
+    absen = spark.createDataFrame(jajal)
+    absen.show()
+    jdbc_url = "jdbc:postgresql://localhost:5431/NurHary"
+    absen.write.jdbc(url=jdbc_url, table="jajal", mode="append", properties={"user":"NurHary","password":"ForourDreams", "driver":"org.postgresql.Driver"})
 
 
 if __name__ == "__main__":
-    main2()
+    main()

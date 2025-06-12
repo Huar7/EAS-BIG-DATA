@@ -19,9 +19,6 @@ Project ini memiliki beragam file dengan fungsi mereka masing - masing (yang kem
 - [ ] interval download untuk data seragam, gunakan interval per menit (sangat boros)
 
 ## Main - Task
-- [x] Memperbaiki Rdata -- ada  yang salah dengan kafka nya. ealah ternyata hanya satu kesalahan bodoh
-
-sesi berikutnya
-- [ ] Membangun algoritma pengiriman ke postgresql
-- [ ] Menyiapkan untuk melakukan ARIMA
-- [ ] Benerin fungsi2 di dashboard.py
+- [ ] Membuat send_db dengan isi untuk melakukan pengiriman pada database (via psycopg2) yang akan dijalankan setiap Rdata return 0
+- [ ] Mencari tahu cara melakukan ML
+- [ ] Membuat main_ml yang akan dijalankan setiap Rdata return 0

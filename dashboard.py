@@ -1,5 +1,6 @@
-import time
 from time import time
+
+from requests import session
 
 import kafka as kf
 import spark_builder as sb
@@ -7,7 +8,12 @@ import streamlit as st
 import wkaf as kw
 from pyspark.sql import SparkSession
 import json
+import pyspark
+from pyspark.sql import SparkSession
 
+# // inisialisasi Spark dan consumer disini untuk mempercepat sistem kerja fungsi Rdata
+# // untuk kafka sendiri supaya dapat menerima nilai dengan cara fungsi recursive seperti yang dapat kita lihat dibawahjal
+spark = SparkSession.builder.appName("main_app").getOrCreate()
 
 consumer = kf.KafkaConsumer(
     "stock_kotor",
@@ -28,7 +34,7 @@ periode_sel = {
 if "data" not in st.session_state:
     st.session_state.data = []
     st.session_state.itter = 0
-
+    st.session_state.nil_one = {}
 
 if "time" not in st.session_state:
     st.session_state.time = False
@@ -66,15 +72,20 @@ def fragment_receive_data():
     # // bagaimana cara memberhentikan waktunya ketika tidak ada data yang diterima?
     # // mungkin gak usah, tapi aku ingin sekali
     # print("luh ngeloop")
-    sb.Rdata(st.session_state.itter, consumer)
+    kelanjutan = sb.Rdata(
+        st.session_state.itter, consumer, st.session_state.nil_one, spark
+    )
+    print(st.session_state.time, st.session_state.itter)
+    if kelanjutan[0] == 0:
+        st.session_state.itter += 1
+        st.session_state.nil_one = kelanjutan[1]
+        # // ini kita akan isi dengan pengiriman pada
 
 
 @st.fragment(run_every=run_get)
 def fragment_get_data():
     # // Jadi saya harus memulai fungsi ini untuk
     kw.Wdata(st.session_state.period, st.session_state.itter)
-    if st.session_state.time:
-        st.session_state.itter += 1
 
 
 # // ini untuk melakukan iterasi setiap beberapa detik
