@@ -73,6 +73,32 @@ def Rdata(iter, consumer, nil_one, spark):
 
 
 def find_largest(nil: dict) -> str:
+    panjang = []
+    naila = [*nil]
+    for i in naila:
+        panjang.append(len(nil[i]))
+    maxi = max(panjang)
+    posisi = panjang.index(maxi)
+    pos = naila[posisi]
+    return pos
+
+
+def dataframe_normalization(data: dict, amount: int):
+    """Fungsi yang digunakan untuk mengubah bentuk data list dengan dictionaries yang berisi list untuk berubah menjadi , Amount adalah jumlah seharusnya dari data tersebut"""
+    junia = [*data]
+    for i in junia:
+        iterasi = amount - len(data[i])
+        match iterasi:
+            case 0:
+                pass
+            case _:
+                for _ in range(iterasi):
+                    data[i].append(
+                        data[i][-1]
+                    )  # // ini untuk menormalisasi data yang kosong dimana akan mengisi dengan nilai yang atas
+    to_dict = [dict(zip(data.keys(), values)) for values in zip(*data.values())]
+
+    return to_dict
 
 
 def datastream_normalization(data: dict, data2: dict, andval: dict):

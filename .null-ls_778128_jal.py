@@ -48,7 +48,7 @@ def main2():
 
 def main3():
     yfinance.Tickers(["CHYM"])
-    yfinance.history
+    yfinance.history()
 
 if __name__ == "__main__":
     main()
