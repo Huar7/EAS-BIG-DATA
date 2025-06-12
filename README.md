@@ -22,4 +22,4 @@ Project ini memiliki beragam file dengan fungsi mereka masing - masing (yang kem
 - [x] Membuat send_db dengan isi untuk melakukan pengiriman pada database (via psycopg2) yang akan dijalankan setiap Rdata return 0
 - [ ] Mencari tahu cara melakukan ML
 - [ ] Membuat main_ml yang akan dijalankan setiap Rdata return 0
-- [ ] Membenarkan Dashboardnya dan menampilkan Datanya
+- [ ] Membenarkan Dashboardnya dan menampilkan Datanyat
