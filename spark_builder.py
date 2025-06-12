@@ -29,11 +29,10 @@ def Rdata(iter, consumer, nil_one, spark):
                     print("langkah 1")
                     maxi = find_largest(nilai_data)
                     print(nilai_data, "\n \n", nilai_data[maxi])
-                    print("langkah 1.1")
-                    maxum = nilai_data
-                    for i in [*maxum]:
-                        print(len(maxum[i]))
-                    print("langkah 1.2")
+                    mixue = check_error(nilai_data)
+                    maxum = dataframe_normalization(
+                        mixue, len(mixue[maxi])
+                    )  # // ini masih bisa mengalami kehancuran apabila ada yang nilainya 0
                     nil_min_one = maxum[-1]
                     print("langkah 2")
                     optimus_prime = god_merge(chronos, maxum)
@@ -81,6 +80,13 @@ def find_largest(nil: dict) -> str:
     posisi = panjang.index(maxi)
     pos = naila[posisi]
     return pos
+
+
+def check_error(data_input: dict):
+    for i in [*data_input]:
+        if len(data_input[i]) == 0:
+            del data_input[i]
+    return data_input
 
 
 def dataframe_normalization(data: dict, amount: int):
