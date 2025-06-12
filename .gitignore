@@ -1,0 +1,7 @@
+kafka/
+jars/
+pandas/
+sqlalchemy/
+pyspark/
+streamlit/
+yfinance/
