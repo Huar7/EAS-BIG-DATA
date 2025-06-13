@@ -7,3 +7,4 @@ streamlit/
 yfinance/
 statsmodels/
 .streamlit/
+streamlit_dynamic_filters/

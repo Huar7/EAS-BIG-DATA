@@ -4,6 +4,7 @@ from streamlit_dynamic_filters import DynamicFilters
 import kafka as kf
 import spark_builder as sb
 import streamlit as st
+import altair as at
 import wkaf as kw
 from pyspark.sql import SparkSession
 import json
@@ -11,10 +12,10 @@ import json
 from sqlalchemy import create_engine
 
 import numpy as np
-
 import pandas as pd
 
 
+indes = kw.trending()
 st.title("Trending Stock Data")
 
 
@@ -25,14 +26,17 @@ def show_data():
     df = st.session_state.data
     if df is not None:
         numeric_cols = df.select_dtypes(include="number").columns
+
+        # // Bagian pembuatan dan penggabungan dengan prediksi
+        dafa = st.session_state.pred
+
         with empty.container():
-            st.line_chart(df[numeric_cols], use_container_width=True)
+            st.line_chart(df[st.session_state.filter_set], use_container_width=True)
+
     else:
         with empty.container():
             st.line_chart()
 
-
-indes = kw.trending()
 
 engine = create_engine("postgresql://NurHary:ForourDreams@localhost:5431/NurHary")
 # // inisialisasi Spark dan consumer disini untuk mempercepat sistem kerja fungsi Rdata
@@ -62,6 +66,7 @@ periode_sel = {
 if "data" not in st.session_state:
     st.session_state.data = None
     st.session_state.pred = None
+    st.session_state.filter_set = []
     show_data()
     st.session_state.itter = 0
     st.session_state.nil_one = {}
@@ -98,6 +103,10 @@ if st.session_state.time is True:
     run_get = 5.0
 else:
     run_get = None
+
+with st.sidebar.expander("Filter"):
+    filter_set = st.multiselect("", indes, default=indes)
+    st.session_state.filter_set = filter_set
 
 
 @st.fragment(run_every=0.1)
