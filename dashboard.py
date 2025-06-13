@@ -105,6 +105,8 @@ else:
     run_get = None
 
 with st.sidebar.expander("Filter"):
+    if st.session_state.unwanted_list != []:
+        indes.remove(st.session_state.unwanted_list)
     filter_set = st.multiselect("", indes, default=indes)
     st.session_state.filter_set = filter_set
 
