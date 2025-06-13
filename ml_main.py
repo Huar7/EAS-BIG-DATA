@@ -20,4 +20,4 @@ def arima_ml(engine: Engine, con: connection):
     daf = pd.DataFrame(cpl)
     daf.to_sql("data_prediksi", engine, index=False)
     cur.close()
-
+    con.close()

@@ -57,12 +57,14 @@ def main2():
     absenpdf = absen.toPandas()
     print(absen)
 
-    usbun = pd.DataFrame()
-    engine = create_engine("postgresql://NurHary:ForourDreams@localhost:5431/NurHary")
-    absenpdf.to_sql("jajal2", engine)
-    print(type(absenpdf))
+    print(tuple(row for row in absenpdf))
 
-    absenpdf.append({"ageh": 69, "istri": 69, "bcount": 69})
+    # usbun = pd.DataFrame()
+    # engine = create_engine("postgresql://NurHary:ForourDreams@localhost:5431/NurHary")
+    # absenpdf.to_sql("jajal2", engine)
+    # print(type(absenpdf))
+
+    # absenpdf.append({"ageh": 69, "istri": 69, "bcount": 69})
 
     cur.close()
     con.close()
@@ -81,4 +83,4 @@ def main4():
 
 
 if __name__ == "__main__":
-    main3()
+    main2()

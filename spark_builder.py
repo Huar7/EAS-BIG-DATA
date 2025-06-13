@@ -27,31 +27,25 @@ def Rdata(iter, consumer, nil_one, spark, engine, data_last, unwanted_list):
                 # print(f"nilai Panggilan {nilai_panggilan} {'=' * 50}")
 
                 if iter == 0:
-                    print("langkah 1")
                     maxi = find_largest(nilai_data)
                     mixue = check_error(nilai_data)
                     maxum = dataframe_normalization(
                         mixue[0], len(mixue[0][maxi])
                     )  # // ini masih bisa mengalami kehancuran apabila ada yang nilainya 0
                     nil_min_one = maxum[-1]
-                    print("langkah 2")
                     optimus_prime = god_merge(chronos, maxum)
 
                     df = spark.createDataFrame(
                         optimus_prime
                     )  # // NOTES tidak menemukan cara untuk membuat dataframe menjadi dalam bentuk / tidak perlu di sort column nya
                     df = df.toPandas()
-                    print("panjang: ", len(df))
 
                     send_val(df, engine)
 
-                    print("langkah 2.0.0")
                     return (0, nil_min_one, df, mixue[1])
                 else:
-                    print("langkah 3")
                     if unwanted_list:
                         print(unwanted_list)
-                        print("gak kosong")
                         for j in unwanted_list:
                             print(j)
                             for xn in j:
@@ -59,16 +53,10 @@ def Rdata(iter, consumer, nil_one, spark, engine, data_last, unwanted_list):
                     maxum = datastream_normalization(
                         nilai_data, chronos, nil_one
                     )  # // nil min one kosong
-                    print("langkah 4")
                     stream_frame = spark.createDataFrame(maxum)
-                    print("langkah 5")
                     df = stream_frame.toPandas()
-                    print("ok 1")
-
-                    """pada saat ini kita memiliki 2 data dimana satu mengandung nilai terdahulu sedangkan satu lagi mengandung nilai terbaru, maka dari itu kita akan menggabungkan kedua nilai itu dengan menggunakan fungsi union yang dimiliki class DataFrame"""
 
                     df = pd.concat([df, data_last])
-                    print("panjang: ", len(df))
                     send_val(df, engine)
 
                     return (0, nil_one, df, unwanted_list)

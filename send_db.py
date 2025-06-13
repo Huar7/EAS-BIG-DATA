@@ -19,10 +19,9 @@ def send_val(data: pd.DataFrame, engine: Engine):
     cur.execute("drop table if exists data_kotor;")
     con.commit()
 
-    data.set_index("Timestamp", inplace=True)
-
-    data.to_sql("data_kotor", engine)
+    data.to_sql("data_kotor", engine, index=False)
     cur.close()
 
     arima_ml(engine, con)
     con.close()
+

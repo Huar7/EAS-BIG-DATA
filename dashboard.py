@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from streamlit_dynamic_filters import DynamicFilters
 import kafka as kf
 import spark_builder as sb
 import streamlit as st
@@ -130,12 +131,8 @@ def fragment_receive_data():
         )
         st.session_state.data.set_index("Timestamp", inplace=True)
 
-        print("\n \n")
-        print(st.session_state.data)
-        print("\n \n")
-
         show_data()
-        st.line_chart(st.session_state.data)
+        show_data()
 
         # // ini kita akan isi dengan pengiriman pada
 
@@ -143,8 +140,6 @@ def fragment_receive_data():
 @st.fragment(run_every=run_get)
 def fragment_get_data():
     # // Jadi saya harus memulai fungsi ini untuk
-    if st.session_state.time =True:
-
     kw.Wdata(
         st.session_state.period, st.session_state.itter, indes, st.session_state.intv
     )
