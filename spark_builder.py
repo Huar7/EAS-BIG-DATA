@@ -3,6 +3,9 @@ import math
 from yfinance import data
 from send_db import send_val
 import pandas as pd
+from datetime import datetime
+import pandas as pd
+from pandas import DataFrame
 
 # from multiprocessing import Process
 
@@ -40,10 +43,9 @@ def Rdata(iter, consumer, nil_one, spark, engine, data_last, unwanted_list):
                     df = df.toPandas()
                     print("panjang: ", len(df))
 
-
                     send_val(df, engine)
-    
 
+                    print("langkah 2.0.0")
                     return (0, nil_min_one, df, mixue[1])
                 else:
                     print("langkah 3")
@@ -97,7 +99,7 @@ def check_error(data_input: dict):
     hasil = []
     for i in [*data_input]:
         if len(data_input[i]) == 0:
-            print("i sama dengan: ",i)
+            print("i sama dengan: ", i)
             hasil.append([i])
             del data_input[i]
     return (data_input, hasil)

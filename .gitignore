@@ -5,3 +5,5 @@ sqlalchemy/
 pyspark/
 streamlit/
 yfinance/
+statsmodels/
+.streamlit/

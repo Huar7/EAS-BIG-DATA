@@ -1,6 +1,4 @@
-from time import time
-
-from requests import session
+from datetime import datetime
 
 import kafka as kf
 import spark_builder as sb
@@ -8,10 +6,27 @@ import streamlit as st
 import wkaf as kw
 from pyspark.sql import SparkSession
 import json
-import pyspark
-from pyspark.sql import SparkSession
 
 from sqlalchemy import create_engine
+
+import numpy as np
+
+import pandas as pd
+
+empty = st.empty()
+
+
+def show_data():
+    df = st.session_state.data
+    if df is not None:
+        numeric_cols = df.select_dtypes(include="number").columns
+        with empty.container():
+            st.line_chart(df[numeric_cols], use_container_width=True)
+    else:
+        print("Empty")
+
+
+indes = kw.trending()
 
 engine = create_engine("postgresql://NurHary:ForourDreams@localhost:5431/NurHary")
 # // inisialisasi Spark dan consumer disini untuk mempercepat sistem kerja fungsi Rdata
@@ -35,7 +50,9 @@ periode_sel = {
 }
 
 if "data" not in st.session_state:
-    st.session_state.data = []
+    st.session_state.data = None
+    st.session_state.pred = None
+    show_data()
     st.session_state.itter = 0
     st.session_state.nil_one = {}
     st.session_state.dfer = None
@@ -78,7 +95,13 @@ def fragment_receive_data():
     # // mungkin gak usah, tapi aku ingin sekali
     # print("luh ngeloop")
     kelanjutan = sb.Rdata(
-        st.session_state.itter, consumer, st.session_state.nil_one, spark, engine, st.session_state.dfer, st.session_state.unwanted_list
+        st.session_state.itter,
+        consumer,
+        st.session_state.nil_one,
+        spark,
+        engine,
+        st.session_state.dfer,
+        st.session_state.unwanted_list,
     )
     print(st.session_state.time, st.session_state.itter)
     if kelanjutan[0] == 0:
@@ -86,14 +109,27 @@ def fragment_receive_data():
         st.session_state.nil_one = kelanjutan[1]
         st.session_state.dfer = kelanjutan[2]
         st.session_state.unwanted_list = kelanjutan[3]
-        
+
+        st.session_state.data = pd.read_sql_query(
+            "select * from data_kotor", con=engine
+        )
+        st.session_state.pred = pd.read_sql_query(
+            "select * from data_prediksi", con=engine
+        )
+
+        print("\n \n")
+        print(st.session_state.data.index[-1])
+        print("\n \n")
+
+        show_data()
+
         # // ini kita akan isi dengan pengiriman pada
 
 
 @st.fragment(run_every=run_get)
 def fragment_get_data():
     # // Jadi saya harus memulai fungsi ini untuk
-    kw.Wdata(st.session_state.period, st.session_state.itter)
+    kw.Wdata(st.session_state.period, st.session_state.itter, indes)
 
 
 # // ini untuk melakukan iterasi setiap beberapa detik

@@ -1,10 +1,13 @@
+from datetime import datetime
 from numpy import append, save
 from requests import options
+from pandas._libs.tslibs.period import period_array_strftime
 from pyspark.sql import SparkSession, DataFrameWriterV2
 import psycopg2 as psy
 
 import pandas as pd
 
+from statsmodels.tsa.arima.model import ARIMA
 import yfinance
 
 from sqlalchemy import create_engine
@@ -29,6 +32,16 @@ def main():
 
 
 def main2():
+    con = psy.connect(
+        host="localhost",
+        database="NurHary",
+        user="NurHary",
+        password="ForourDreams",
+        port="5431",
+    )
+    cur = con.cursor()
+    cur.execute("drop table if exists jajal2;")
+    con.commit()
     jajal = [
         {"ageh": 20, "istri": 4, "bcount": 30},
         {"ageh": 31, "istri": 200, "bcount": 300000},
@@ -43,45 +56,34 @@ def main2():
     absen = spark.createDataFrame(jajal)
     absenpdf = absen.toPandas()
     print(absen)
+
+    usbun = pd.DataFrame()
     engine = create_engine("postgresql://NurHary:ForourDreams@localhost:5431/NurHary")
-    print(type(engine))
+    absenpdf.to_sql("jajal2", engine)
+    print(type(absenpdf))
 
-    iter = 0
-    while True:
-        usbun = pd.DataFrame(
-            {"ageh": [6969, 2020], "istri": [24, 100], "bcount": [124015, 0]}
-        )
-        if iter == 0:
-            send_val(absenpdf, engine)
-        else:
-            absenpdf = pd.concat([absenpdf, usbun])
-            send_val(absenpdf, engine)
-        if iter == 5:
-            break
-        iter += 1
+    absenpdf.append({"ageh": 69, "istri": 69, "bcount": 69})
 
-
-def send_val(data, engine):
-    con = psy.connect(
-        host="localhost",
-        database="NurHary",
-        user="NurHary",
-        password="ForourDreams",
-        port="5431",
-    )
-    cur = con.cursor()
-    cur.execute("drop table if exists jajal2;")
-    con.commit()
-
-    data.to_sql("jajal2", engine, index=False)
     cur.close()
     con.close()
 
 
 def main3():
-    yfinance.Tickers(["CHYM"])
-    yfinance.history()
+    starter = yfinance.Tickers(["AAL", "AAOI", "BA"])
+    historis = starter.history(period="1d", interval="1m", progress=False, repair=True)
+    df = pd.DataFrame({"Timestamp":[]})
+    df["Timestamp"] = historis.index[-1]
+    df["Timestamp"] = df["Timestamp"].values.astype(pd.Timestamp)
+    print(df)
+    print(type(df["Timestamp"]))
+
+
+
+def main4():
+    sekarang = datetime.now()
+    print(type(sekarang))
+
 
 
 if __name__ == "__main__":
-    main2()
+    main3()

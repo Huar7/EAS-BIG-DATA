@@ -1,6 +1,8 @@
 import psycopg2 as psy
+from ml_main import arima_ml
 import pandas as pd
 from sqlalchemy.engine.base import Engine
+from psycopg2.extensions import connection
 
 
 def send_val(data: pd.DataFrame, engine: Engine):
@@ -17,6 +19,10 @@ def send_val(data: pd.DataFrame, engine: Engine):
     cur.execute("drop table if exists data_kotor;")
     con.commit()
 
-    data.to_sql("data_kotor", engine, index=False)
+    data.set_index("Timestamp", inplace=True)
+
+    data.to_sql("data_kotor", engine)
     cur.close()
+
+    arima_ml(engine, con)
     con.close()

@@ -67,7 +67,7 @@ def yf_first(isi: list, waktu: str):
         for j in range(len(julia)):
             nalia.append(julia[j].item())  # // return data
             if once == 0:
-                nulia.append({"Timestamp": julia.index[j].strftime("%Y/%m/%d %X")})
+                nulia.append({"Timestamp": julia.index[j]})
         once = 1
 
         hasil[i] = nalia
@@ -81,7 +81,7 @@ def data_ingest_run(isi: list):
     hasil = {}
     try:
         historis = info.history(period="1d", interval="1m", progress=False, repair=True)
-        reynauld = {"Timestamp": historis.index[-1].strftime("%Y/%m/%d %X")}
+        reynauld = {"Timestamp": historis.index[-1]}
         for i in historis["Close"]:
             dismas = historis["Close"][i].iloc[-1]
             hasil[i] = dismas  # // perubahan pada output
@@ -94,8 +94,7 @@ def data_ingest_run(isi: list):
 # ini untuk menerima nilai dari yfinance tersebut dan langsung mengirimnya ke kafka
 
 
-def Wdata(waktu: str, iter):
-    indes = trending()
+def Wdata(waktu: str, iter, indes):
     produser = kf.KafkaProducer(bootstrap_servers="localhost:9092")
     if iter == 0:
         start_val = yf_first(indes, waktu)
