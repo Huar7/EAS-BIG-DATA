@@ -50,7 +50,7 @@ def trending():
 
 def yf_first(isi: list, waktu: str):
     starter = yf.Tickers(isi)
-    historis = starter.history(period=waktu, interval="1m", progress=False, repair=True)
+    historis = starter.history(period=waktu, interval="1h", progress=False, repair=True)
 
     # kembalikan = ['Dividends', 'High', 'Low', 'Open', 'Stock Splits', 'Volume'] # // ini adalah daftar variabel yang nilainya akan di return, tidak secara programming untuk optimisasi
 
@@ -80,7 +80,7 @@ def data_ingest_run(isi: list):
     info = yf.Tickers(isi)
     hasil = {}
     try:
-        historis = info.history(period="1d", interval="1m", progress=False, repair=True)
+        historis = info.history(period="1d", interval="1h", progress=False, repair=True)
         reynauld = {"Timestamp": historis.index[-1]}
         for i in historis["Close"]:
             dismas = historis["Close"][i].iloc[-1]
