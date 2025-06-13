@@ -79,7 +79,6 @@ def Rdata(iter, consumer, nil_one, spark, engine, data_last, unwanted_list):
                 print("Kode I, Lompati atau Tidak Bisa")
                 return (1, nil_min_one, None, [])
     else:
-        print("No new messages \n")
         return (1, {}, None, [])
 
 
@@ -99,7 +98,6 @@ def check_error(data_input: dict):
     hasil = []
     for i in [*data_input]:
         if len(data_input[i]) == 0:
-            print("i sama dengan: ", i)
             hasil.append([i])
             del data_input[i]
     return (data_input, hasil)

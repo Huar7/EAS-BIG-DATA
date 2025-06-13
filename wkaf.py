@@ -48,9 +48,9 @@ def trending():
     return trend
 
 
-def yf_first(isi: list, waktu: str):
+def yf_first(isi: list, waktu: str, intv):
     starter = yf.Tickers(isi)
-    historis = starter.history(period=waktu, interval="1h", progress=False, repair=True)
+    historis = starter.history(period=waktu, interval=intv, progress=False, repair=True)
 
     # kembalikan = ['Dividends', 'High', 'Low', 'Open', 'Stock Splits', 'Volume'] # // ini adalah daftar variabel yang nilainya akan di return, tidak secara programming untuk optimisasi
 
@@ -76,11 +76,11 @@ def yf_first(isi: list, waktu: str):
     return (hasil, nulia)
 
 
-def data_ingest_run(isi: list):
+def data_ingest_run(isi: list, intv):
     info = yf.Tickers(isi)
     hasil = {}
     try:
-        historis = info.history(period="1d", interval="1h", progress=False, repair=True)
+        historis = info.history(period="1d", interval=intv, progress=False, repair=True)
         reynauld = {"Timestamp": historis.index[-1]}
         for i in historis["Close"]:
             dismas = historis["Close"][i].iloc[-1]
@@ -94,10 +94,10 @@ def data_ingest_run(isi: list):
 # ini untuk menerima nilai dari yfinance tersebut dan langsung mengirimnya ke kafka
 
 
-def Wdata(waktu: str, iter, indes):
+def Wdata(waktu: str, iter, indes, intv):
     produser = kf.KafkaProducer(bootstrap_servers="localhost:9092")
     if iter == 0:
-        start_val = yf_first(indes, waktu)
+        start_val = yf_first(indes, waktu, intv)
 
         produser.send(
             topic="stock_kotor",
@@ -107,7 +107,7 @@ def Wdata(waktu: str, iter, indes):
 
     else:
         print("jal1")
-        continous_val = data_ingest_run(indes)
+        continous_val = data_ingest_run(indes, intv)
         produser.send(
             topic="stock_kotor",
             value=json.dumps(continous_val, default=str).encode("utf-8"),

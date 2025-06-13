@@ -71,11 +71,6 @@ def main2():
 def main3():
     starter = yfinance.Tickers(["AAL", "AAOI", "BA"])
     historis = starter.history(period="1d", interval="1m", progress=False, repair=True)
-    df = pd.DataFrame({"Timestamp":[]})
-    df["Timestamp"] = historis.index[-1]
-    df["Timestamp"] = df["Timestamp"].values.astype(pd.Timestamp)
-    print(df)
-    print(type(df["Timestamp"]))
 
 
 

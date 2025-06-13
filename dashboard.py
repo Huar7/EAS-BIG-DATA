@@ -13,6 +13,10 @@ import numpy as np
 
 import pandas as pd
 
+
+st.title("Trending Stock Data")
+
+
 empty = st.empty()
 
 
@@ -23,7 +27,8 @@ def show_data():
         with empty.container():
             st.line_chart(df[numeric_cols], use_container_width=True)
     else:
-        print("Empty")
+        with empty.container():
+            st.line_chart()
 
 
 indes = kw.trending()
@@ -42,12 +47,16 @@ consumer = kf.KafkaConsumer(
 )
 consumer.subscribe(topics=["stock_kotor"])
 
-pilihan_waktu = ["1 hari", "5 hari", "1 bulan"]
+pilihan_waktu = ["1 Hari", "5 Hari", "1 Minggu", "1 Bulan", "3 Bulan", "6 Bulan"]
 periode_sel = {
-    "1 hari": "1d",
-    "5 hari": "5d",
-    "1 bulan": "1mo",
+    "1 Hari": ["1d", "1m"],
+    "5 Hari": ["5d", "1m"],
+    "1 Minggu": ["1wk", "1m"],
+    "1 Bulan": ["1mo", "5m"],
+    "3 Bulan": ["3mo", "1h"],
+    "6 Bulan": ["6mo", "1h"],
 }
+
 
 if "data" not in st.session_state:
     st.session_state.data = None
@@ -78,8 +87,11 @@ st.sidebar.button(
 
 with st.sidebar.expander("Pilih Periode data"):
     period_arr = st.radio("", pilihan_waktu, horizontal=False, on_change=change_time)
-    period = periode_sel[period_arr]
+    period = periode_sel[period_arr][0]
+    intv = periode_sel[period_arr][1]
+
     st.session_state.period = period  # // it just work?
+    st.session_state.intv = intv  # // it just work?
 
 if st.session_state.time is True:
     run_get = 5.0
@@ -116,12 +128,14 @@ def fragment_receive_data():
         st.session_state.pred = pd.read_sql_query(
             "select * from data_prediksi", con=engine
         )
+        st.session_state.data.set_index("Timestamp", inplace=True)
 
         print("\n \n")
-        print(st.session_state.data.index[-1])
+        print(st.session_state.data)
         print("\n \n")
 
         show_data()
+        st.line_chart(st.session_state.data)
 
         # // ini kita akan isi dengan pengiriman pada
 
@@ -129,7 +143,11 @@ def fragment_receive_data():
 @st.fragment(run_every=run_get)
 def fragment_get_data():
     # // Jadi saya harus memulai fungsi ini untuk
-    kw.Wdata(st.session_state.period, st.session_state.itter, indes)
+    if st.session_state.time =True:
+
+    kw.Wdata(
+        st.session_state.period, st.session_state.itter, indes, st.session_state.intv
+    )
 
 
 # // ini untuk melakukan iterasi setiap beberapa detik
