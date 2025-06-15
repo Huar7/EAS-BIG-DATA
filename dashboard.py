@@ -20,11 +20,18 @@ st.title("Trending Stock Data")
 
 
 empty = st.empty()
+empty2 = st.empty()
 
 
 def show_data():
     df = st.session_state.data
     if df is not None:
+        dapo = st.session_state.pred
+        dupu = dapo.iloc[-1] - df.iloc[-1]
+        print(dupu)
+        dupu = dupu.nlargest(5)
+        dupu_n = dupu.index.to_list()
+        dupu_v = dupu.to_list()
         numeric_cols = df.select_dtypes(include="number").columns
 
         # // Bagian pembuatan dan penggabungan dengan prediksi
@@ -32,6 +39,22 @@ def show_data():
 
         with empty.container():
             st.line_chart(df[st.session_state.filter_set], use_container_width=True)
+
+        with empty2.container():
+            with st.expander("Top Gainer"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.subheader(dupu_n[0])
+                    st.subheader(dupu_n[1])
+                    st.subheader(dupu_n[2])
+                    st.subheader(dupu_n[3])
+                    st.subheader(dupu_n[4])
+                with col2:
+                    st.subheader(dupu_v[0])
+                    st.subheader(dupu_v[1])
+                    st.subheader(dupu_v[2])
+                    st.subheader(dupu_v[3])
+                    st.subheader(dupu_v[4])
 
     else:
         with empty.container():

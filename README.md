@@ -11,4 +11,4 @@ Project ini memiliki beragam file dengan fungsi mereka masing - masing (yang kem
 - [x] Mencari tahu cara melakukan ML
 - [x] Membuat main_ml yang akan dijalankan setiap Rdata return 0
 - [x] Membenarkan Dashboardnya dan menampilkan Datanyat
-- [ ] Menampilkan data prediksi
+- [x] Menampilkan data prediksi

@@ -75,12 +75,18 @@ def main3():
     historis = starter.history(period="1d", interval="1m", progress=False, repair=True)
 
 
-
 def main4():
-    sekarang = datetime.now()
-    print(type(sekarang))
-
-
+    df1 = pd.DataFrame([{"Nilai": 10, "bagus": 1, "ngentu": 201, "bara": 51},
+                        {"Nilai": 120, "bagus": 5, "ngentu": 140, "bara": 512},
+                  ])
+    df2 = pd.DataFrame([{"Nilai": 20, "bagus": 3, "ngentu": 300, "bara": 31},
+                        {"Nilai": 620, "bagus": 4, "ngentu": 310, "bara": 42},
+                  ])
+    df3 = df1.iloc[-1] + df2.iloc[-1]
+    dafu = df3.nlargest(5)
+    dafu1 = dafu.index. to_list()
+    dafu2 = dafu.to_list()
+    print(dafu1, dafu2)
 
 if __name__ == "__main__":
-    main2()
+    main4()

@@ -18,8 +18,6 @@ def arima_ml(engine: Engine, con: connection):
     cur.execute("drop table if exists data_prediksi;")
     con.commit()
     daf = pd.DataFrame(cpl)
-    daf["Timestamp"] = df["Timestamp"]
-    daf.set_index("Timestamp", inplace=True)
-    daf.to_sql("data_prediksi", engine)
+    daf.to_sql("data_prediksi", engine, index=False)
     cur.close()
     con.close()
