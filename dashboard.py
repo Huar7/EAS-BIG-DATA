@@ -21,6 +21,7 @@ st.title("Trending Stock Data")
 
 empty = st.empty()
 empty2 = st.empty()
+empty3 = st.empty()
 
 
 def show_data():
@@ -29,9 +30,14 @@ def show_data():
         dapo = st.session_state.pred
         dupu = dapo.iloc[-1] - df.iloc[-1]
         print(dupu)
-        dupu = dupu.nlargest(5)
-        dupu_n = dupu.index.to_list()
-        dupu_v = dupu.to_list()
+        dupul = dupu.nlargest(5)
+        dupu_n = dupul.index.to_list()
+        dupu_v = dupul.to_list()
+
+        dupus = dupu.nsmallest(5)
+        dupus_n = dupus.index.to_list()
+        dupus_v = dupus.to_list()
+
         numeric_cols = df.select_dtypes(include="number").columns
 
         # // Bagian pembuatan dan penggabungan dengan prediksi
@@ -55,6 +61,21 @@ def show_data():
                     st.subheader(dupu_v[2])
                     st.subheader(dupu_v[3])
                     st.subheader(dupu_v[4])
+        with empty3.container():
+            with st.expander("Top Looser"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.subheader(dupus_n[0])
+                    st.subheader(dupus_n[1])
+                    st.subheader(dupus_n[2])
+                    st.subheader(dupus_n[3])
+                    st.subheader(dupus_n[4])
+                with col2:
+                    st.subheader(dupus_v[0])
+                    st.subheader(dupus_v[1])
+                    st.subheader(dupus_v[2])
+                    st.subheader(dupus_v[3])
+                    st.subheader(dupus_v[4])
 
     else:
         with empty.container():
@@ -123,7 +144,7 @@ with st.sidebar.expander("Pilih Periode data"):
     st.session_state.intv = intv  # // it just work?
 
 if st.session_state.time is True:
-    run_get = 5.0
+    run_get = 60.0
 else:
     run_get = None
 
